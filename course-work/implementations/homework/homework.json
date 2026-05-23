@@ -1,0 +1,6433 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Museum Management System - Iunu API",
+    "description": "Iunu API is a Museum Managment System, named after the ancient city of Heliopolis. It allows museums to manage their collections, research studies, and funds.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://localhost:5204/api",
+      "description": "Local development server"
+    }
+  ],
+  "security": [
+    {
+      "BearerAuth": []
+    }
+  ],
+  "paths": {
+    "/Attribute/getattributes": {
+    "get": {
+      "tags": [
+        "Attribute"
+      ],
+      "summary": "Returns a list of attributes in the Museum Managment System.",
+      "description": "Returns a list of attributes (the characteristics an item in the museum can have). Includes option to filter the selected attributes by name and date it was added in the system on, plus sorting and paging functionality.",      
+	  "parameters": [
+        {
+          "name": "attrName",
+          "in": "query",
+          "required": false,
+          "description": "Used to filter the list by attribute name",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "dtCreated",
+          "in": "query",
+          "required": false,
+          "description": "Used to filter by the attribute creation date.",
+          "schema": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        {
+          "name": "pageNum",
+          "in": "query",
+          "required": false,
+          "description": "Number of the page (Validation: minimum value 1).",
+          "schema": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 1,
+            "default": 1
+          }
+        },
+        {
+          "name": "pageSize",
+          "in": "query",
+          "required": false,
+          "description": "Number of elements on page (Validation: whole number between 1 and 100).",
+          "schema": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 1,
+            "maximum": 100,
+            "default": 10
+          }
+        },
+        {
+          "name": "sortBy",
+          "in": "query",
+          "required": false,
+          "description": "The field to sort the attributes by.",
+          "schema": {
+            "type": "string",
+            "default": "attrName"
+          }
+        },
+        {
+          "name": "sortDirection",
+          "in": "query",
+          "required": false,
+          "description": "Direction to sort the attributes in (Validation: 'asc' or 'desc').",
+          "schema": {
+            "type": "string",
+            "enum": [
+              "asc",
+              "desc"
+            ],
+            "default": "asc"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "Success: here's a list of the (optionally filtered and sorted) attributes.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/GetAttributesDTO"
+                }
+              }
+            }
+          }
+        },
+        "400": {
+          "description": "Invalid parameters for filters or paging."
+        },
+        "401": {
+          "description": "Unauthorized access."
+        }
+      }
+    }
+  },
+    "/Attribute/getattribute/{attrId}": {
+      "get": {
+        "tags": [
+          "Attribute"
+        ],
+        "summary": "Returns the details for a specific attribute",
+        "description": "Returns the data for a given attribute by its ID.",
+        "parameters": [
+          {
+            "name": "attrId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Attribute was found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AttributeEntity"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Attribute not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": "Attribute not found"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/Attribute/addattribute": {
+      "post": {
+        "tags": [
+          "Attribute"
+        ],
+        "summary": "Add a new attribute",
+        "description": "Creates a new attribute with user-inputted attribute name. Creation date, ID, and other values are generated in the code",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddAttributeRequestDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Attribute added successfully."
+          },
+          "400": {
+            "description": "Attribute name is invalid or empty.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": "Name is required"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+	"/Attribute/getattr-values/{attrId}": {
+		"get": {
+		"tags": [
+      "Attribute"
+    ],
+    "summary": "Returns a list of values for a specific attribute.",
+    "description": "Returns a list of values for a specified attribute (by Id). Includes options to filter the values by their name and creation date, plus sorting and paging functionality.",
+    "parameters": [
+      {
+        "name": "attrId",
+        "in": "path",
+        "required": true,
+        "description": "ID of the attribute.",
+        "schema": {
+          "type": "integer",
+          "format": "int32"
+        }
+      },
+      {
+        "name": "valueName",
+        "in": "query",
+        "required": false,
+        "description": "Used to filter the list by attribute value name.",
+        "schema": {
+          "type": "string"
+        }
+      },
+      {
+        "name": "dtCreated",
+        "in": "query",
+        "required": false,
+        "description": "Used to filter by the attribute value creation date.",
+        "schema": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      {
+        "name": "pageNum",
+        "in": "query",
+        "required": false,
+        "description": "Number of the page (Validation: minimum value 1).",
+        "schema": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 1,
+          "default": 1
+        }
+      },
+      {
+        "name": "pageSize",
+        "in": "query",
+        "required": false,
+        "description": "Number of elements on page (Validation: whole number between 1 and 100).",
+        "schema": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 10
+        }
+      },
+      {
+        "name": "sortBy",
+        "in": "query",
+        "required": false,
+        "description": "The field to sort the attribute values by.",
+        "schema": {
+          "type": "string",
+          "default": "valueName"
+        }
+      },
+      {
+        "name": "sortDirection",
+        "in": "query",
+        "required": false,
+        "description": "Direction to sort the attribute values in (Validation: 'asc' or 'desc').",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "asc",
+            "desc"
+          ],
+          "default": "asc"
+        }
+      }
+    ],
+    "responses": {
+      "200": {
+        "description": "Success: here's a list of the (optionally filtered and sorted) attribute values.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/GetAttributeValuesDTO"
+              }
+            }
+          }
+        }
+      },
+      "400": {
+        "description": "Invalid parameters for filters or paging."
+      },
+      "401": {
+        "description": "Unauthorized access."
+      }
+    }
+  }
+},
+    "/Attribute/addattr-value": {
+      "post": {
+        "tags": [
+          "Attribute"
+        ],
+        "summary": "Add a value to an attribute",
+        "description": "Adds a value to the list of possible attribute values.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddAttributeValueDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Value added successfully."
+          },
+          "400": {
+            "description": "The value is invalid or the attribute was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": "Attribute not found / Name is required"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/Attribute/editattribute": {
+      "post": {
+        "tags": [
+          "Attribute"
+        ],
+        "summary": "Edits the attribute's name",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAttributeRequestDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Attribute updated."
+          },
+          "400": {
+            "description": "Invalid new name."
+          }
+        }
+      }
+    },
+    "/Attribute/editattr-value": {
+      "post": {
+        "tags": [
+          "Attribute"
+        ],
+        "summary": "Edit an attribute value's name",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAttributeValueDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Value updated."
+          },
+          "400": {
+            "description": "Invalid new name or the atrribute was not found."
+          }
+        }
+      }
+    },
+    "/Attribute/delete-attribute/{attrId}": {
+      "delete": {
+        "tags": [
+          "Attribute"
+        ],
+        "summary": "Deletes an attribute (Soft Delete)",
+        "description": "Marks an attribute as deleted in the system.",
+        "parameters": [
+          {
+            "name": "attrId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Dleted successfully."
+          },
+          "404": {
+            "description": "Attribute not found."
+          }
+        }
+      }
+    },
+    "/Attribute/delete-attr-value/{attrValueId}": {
+      "delete": {
+        "tags": [
+          "Attribute"
+        ],
+        "summary": "Deletes atrribute value (Soft Delete)",
+        "description": "Marks atrribute value as deleted in the system.", 
+		"parameters": [
+          {
+            "name": "attrValueId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Dleted successfully."
+          },
+          "404": {
+            "description": "Attribute not found."
+          }
+        }
+      }
+    },
+	"/Collection/getcollections": {
+      "get": {
+        "tags": [
+          "Collection"
+        ],
+        "summary": "Returns a list of collections in the Museum Management System.",
+        "description": "Returns a list of museum collections. Includes options to filter the selected collections by name and the user it was created by, plus sorting and paging functionality.",
+        "parameters": [
+          {
+            "name": "collName",
+            "in": "query",
+            "required": false,
+            "description": "Used to filter the list by collection name.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "userName",
+            "in": "query",
+            "required": false,
+            "description": "Used to filter by the collection's creator.",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "pageNum",
+            "in": "query",
+            "required": false,
+            "description": "Number of the page (Validation: minimum value 1).",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1,
+              "default": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "description": "Number of elements on a single page (Validation: whole number between 1 and 100).",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 10
+            }
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "required": false,
+            "description": "The field to sort the collections by.",
+            "schema": {
+              "type": "string",
+              "default": "collName"
+            }
+          },
+          {
+            "name": "sortDirection",
+            "in": "query",
+            "required": false,
+            "description": "Direction to sort the collections in (Validation: 'asc' or 'desc').",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "default": "asc"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success: Here is the list of the (optionally filtered and sorted) collections.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GetCollectionsDTO"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid parameters for filters or paging."
+          },
+          "401": {
+            "description": "Unauthorized access."
+          }
+        }
+      }
+    },
+    "/Collection/add-collection": {
+      "post": {
+        "tags": [
+          "Collection"
+        ],
+        "summary": "Creates a new collection",
+        "description": "Adds a new collection to the database. Date of creation, user creator, id, and other values are automatically calculated.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddCollectionRequestDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Collection created successfully."
+          },
+          "400": {
+            "description": "Validation failed: Collection name is missing or contains only whitespace.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": "The collection name is required"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized access."
+          }
+        }
+      }
+    },
+    "/Collection/editcollection": {
+      "post": {
+        "tags": [
+          "Collection"
+        ],
+        "summary": "Updates an existing collection name",
+        "description": "Updates the collection name based on its unique ID.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCollectionDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Collection updated successfully."
+          },
+          "400": {
+            "description": "Collection not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": "Collection not found"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized access."
+          }
+        }
+      }
+    },
+    "/Collection/deletecollection/{collectionId}": {
+      "delete": {
+        "tags": [
+          "Collection"
+        ],
+        "summary": "Deletes a collection (Soft Delete)",
+        "description": "Marks a collection as deleted in the system.",
+        "parameters": [
+          {
+            "name": "collectionId",
+            "in": "path",
+            "required": true,
+            "description": "The ID of the collection to delete.",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Collection deleted successfully."
+          },
+          "404": {
+            "description": "Collection not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": "Collection not found"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized access."
+          }
+        }
+      }
+    },
+	"/Exhibit/getexhibits": {
+      "get": {
+        "tags": [
+          "Exhibit"
+        ],
+        "summary": "Returns a list of exhibits with filtering, sorting, and paging.",
+        "description": "Retrieves a list of exhibits based on user roles. Administrators see all items, while curators see only their assigned items. Supports paging, sorting, and filtering by three fields (title,startDate and endDate). Validates user claims (`userid` and `roleid`) from the attached JWT token.",
+        "parameters": [
+          {
+            "name": "title",
+            "in": "query",
+            "required": false,
+            "description": "Used to filter the list by exhibit title.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "startDate",
+            "in": "query",
+            "required": false,
+            "description": "Used to filter exhibits with a start date bigger than the given one.",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+		  {
+            "name": "endDate",
+            "in": "query",
+            "required": false,
+            "description": "Used to filter exhibits with a end date smaller than the given one.",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+
+          {
+            "name": "pageNum",
+            "in": "query",
+            "required": false,
+            "description": "Number of the page (Validation: minimum value 1).",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1,
+              "default": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "description": "Number of elements on a single page (Validation: whole number between 1 and 100).",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 10
+            }
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "required": false,
+            "description": "The field to sort the exhibits by.",
+            "schema": {
+              "type": "string",
+              "default": "title"
+            }
+          },
+          {
+            "name": "sortDirection",
+            "in": "query",
+            "required": false,
+            "description": "Direction to sort the exhibits in (Validation: 'asc' or 'desc').",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "default": "asc"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success: Here is the list of the (optionally filtered and sorted) exhibits.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GetAllExhibitsResponseDTO"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid parameters for filters or paging."
+          },
+          "401": {
+            "description": "Unauthorized access (Missing or invalid JWT token)."
+          }
+        }
+      }
+    },
+    "/Exhibit/getexhibit/{exhibitId}": {
+      "get": {
+        "tags": [
+          "Exhibit"
+        ],
+        "summary": "Returns details for a specific exhibit",
+        "description": "Returns the data for the specified exhibit.",
+        "parameters": [
+          {
+            "name": "exhibitId",
+            "in": "path",
+            "required": true,
+            "description": "The unique ID of the exhibit.",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success: Exhibit found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetExhibitDTO"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Exhibit not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": "Exhibit not found"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized access."
+          }
+        }
+      }
+    },
+    "/Exhibit/addexhibit": {
+      "post": {
+        "tags": [
+          "Exhibit"
+        ],
+        "summary": "Creates a new exhibit",
+        "description": "Adds a new exhibit. ID, creation date and user creator.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddExhibitRequestDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Exhibit created successfully."
+          },
+          "400": {
+            "description": "Validation failed: Empty fields, invalide begining/end date, entry price < 0 or curator (user creating the exhibit) not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": "Title is required / Description is required / Start date is required. / End date is required. / Entry price is required. / Curator not found."
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized access."
+          }
+        }
+      }
+    },
+    "/Exhibit/editexhibit": {
+      "post": {
+        "tags": [
+          "Exhibit"
+        ],
+        "summary": "Edits an existing exhibit",
+        "description": "Edits an exhibit.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateExhibitRequestDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Exhibit updated successfully."
+          },
+          "400": {
+            "description": "Empty fields, invalid start/end dates, exhibit not found, or curator ot found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": "Exhibit not found / Curator not found."
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized access."
+          }
+        }
+      }
+    },
+    "/Exhibit/delete-exhibit/{exhibitId}": {
+      "delete": {
+        "tags": [
+          "Exhibit"
+        ],
+        "summary": "Deletes an exhibit (Soft Delete)",
+        "description": "Marks an exhibit as deleted.",
+        "parameters": [
+          {
+            "name": "exhibitId",
+            "in": "path",
+            "required": true,
+            "description": "The ID of the exhibit to be soft-deleted.",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Exhibit deleted successfully."
+          },
+          "404": {
+            "description": "Exhibit not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": "Exhibit not found"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized access."
+          }
+        }
+      }
+    },
+	"/ExhibitItem/get-exhibititems/{exhibitId}": {
+      "get": {
+        "tags": [
+          "ExhibitItem"
+        ],
+        "summary": "Returns items assigned to a specific exhibit with filtering, sorting, and paging.",
+        "description": "Retrieves a list of items, assigned to the given exhibit. Includes options to filter results by item name and date it was added.",
+        "parameters": [
+          {
+            "name": "exhibitId",
+            "in": "path",
+            "required": true,
+            "description": "The ID of the exhibit.",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "itemName",
+            "in": "query",
+            "required": false,
+            "description": "Used to filter items by name.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "dtAdded",
+            "in": "query",
+            "required": false,
+            "description": "Used to filter items by date added to the exhibit.",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "pageNum",
+            "in": "query",
+            "required": false,
+            "description": "Number of the page (Validation: minimum value 1).",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1,
+              "default": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "description": "Number of elements on a single page (Validation: whole number between 1 and 100).",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 10
+            }
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "required": false,
+            "description": "The field to sort the assigned items by.",
+            "schema": {
+              "type": "string",
+              "default": "itemName"
+            }
+          },
+          {
+            "name": "sortDirection",
+            "in": "query",
+            "required": false,
+            "description": "Direction to sort the items in (Validation: 'asc' or 'desc').",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "default": "asc"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success: List of assigned items retrieved.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GetItemsByExhDTO"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid parameters for filters or paging."
+          },
+          "401": {
+            "description": "Unauthorized access."
+          }
+        }
+      }
+    },
+    "/ExhibitItem/get-other-items/{exhibitId}": {
+      "get": {
+        "tags": [
+          "ExhibitItem"
+        ],
+        "summary": "Returns items not assigned to a specific exhibit with filtering, sorting, and paging.",
+        "description": "Retrieves a list of museum items that are not a part of the specified exhibit. Used for adding new items to the exhibit. Includes option to filter results by item name and creation date.",
+        "parameters": [
+          {
+            "name": "exhibitId",
+            "in": "path",
+            "required": true,
+            "description": "The ID of the exhibit the items don't belong to.",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "itemName",
+            "in": "query",
+            "required": false,
+            "description": "Used to filter available items by name.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "dtCreated",
+            "in": "query",
+            "required": false,
+            "description": "Used to filter available items by creation date.",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "pageNum",
+            "in": "query",
+            "required": false,
+            "description": "Number of the page (Validation: minimum value 1).",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1,
+              "default": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "description": "Number of elements on a single page (Validation: whole number between 1 and 100).",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 10
+            }
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "required": false,
+            "description": "The field to sort the available items by.",
+            "schema": {
+              "type": "string",
+              "default": "itemName"
+            }
+          },
+          {
+            "name": "sortDirection",
+            "in": "query",
+            "required": false,
+            "description": "Direction to sort the items in (Validation: 'asc' or 'desc').",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "default": "asc"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success: List of available items retrieved.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GetItemsNotExhDTO"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid parameters for filters or paging."
+          },
+          "401": {
+            "description": "Unauthorized access."
+          }
+        }
+      }
+    },
+    "/ExhibitItem/add-exhibititem": {
+      "post": {
+        "tags": [
+          "ExhibitItem"
+        ],
+        "summary": "Links an item to an exhibit",
+        "description": "Creates a many-to-many relationship record between an Exhibit and an Item. Validates the existence of both the exhibit and the item before saving.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddExhibitItemDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Item added to the exhibit successfully."
+          },
+          "400": {
+            "description": "Validation failed: Exhibit or Item not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": "Exhibit not found / Item not found"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized access."
+          }
+        }
+      }
+    },
+    "/ExhibitItem/delete-exhibititem/{ehxitemId}": {
+      "delete": {
+        "tags": [
+          "ExhibitItem"
+        ],
+        "summary": "Removes an item from an exhibit (Soft Delete)",
+        "description": "Marks the exhibit-item entry as deleted",
+        "parameters": [
+          {
+            "name": "ehxitemId",
+            "in": "path",
+            "required": true,
+            "description": "The ID of the exhibit-item.",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Item removed from exhibit successfully."
+          },
+          "404": {
+            "description": "The item does not belong to the exhibit.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": "The item does not belong to the exhibit."
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized access."
+          }
+        }
+      }
+    },
+	"/ExhibitRoom/get-exhibitrooms/{exhibitId}": {
+      "get": {
+        "tags": [
+          "ExhibitRoom"
+        ],
+        "summary": "Returns rooms assigned to a specific exhibit with filtering, sorting, and paging.",
+        "description": "Retrieves a list of museum rooms currently assigned to the given exhibit. Includes options to filter results by room name and date the room was assigned to the exhibit.",
+        "parameters": [
+          {
+            "name": "exhibitId",
+            "in": "path",
+            "required": true,
+            "description": "The ID of the exhibit.",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "roomName",
+            "in": "query",
+            "required": false,
+            "description": "Used to filter assigned rooms by name.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "dtAdded",
+            "in": "query",
+            "required": false,
+            "description": "Used to filter assigned rooms by date they were added to the exhibit.",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "pageNum",
+            "in": "query",
+            "required": false,
+            "description": "Number of the page (Validation: minimum value 1).",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1,
+              "default": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "description": "Number of elements on a single page (Validation: whole number between 1 and 100).",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 10
+            }
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "required": false,
+            "description": "The field to sort the assigned rooms by.",
+            "schema": {
+              "type": "string",
+              "default": "roomName"
+            }
+          },
+          {
+            "name": "sortDirection",
+            "in": "query",
+            "required": false,
+            "description": "Direction to sort the rooms in (Validation: 'asc' or 'desc').",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "default": "asc"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success: List of assigned museum rooms retrieved.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GetRoomsByExhDTO"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid parameters for filters or paging."
+          },
+          "401": {
+            "description": "Unauthorized access."
+          }
+        }
+      }
+    },
+    "/ExhibitRoom/get-other-rooms/{exhibitId}": {
+      "get": {
+        "tags": [
+          "ExhibitRoom"
+        ],
+        "summary": "Returns rooms not assigned to the specific exhibit with filtering, sorting, and paging.",
+        "description": "Retrieves a  list of museum rooms that are currently free. Used for assigning new rooms to the exhibit. Includes options to filter results by room name and creation date.",
+        "parameters": [
+          {
+            "name": "exhibitId",
+            "in": "path",
+            "required": true,
+            "description": "The ID of the exhibit the rooms don't beloong to.",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "roomName",
+            "in": "query",
+            "required": false,
+            "description": "Used to filter available rooms by name.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "dtCreated",
+            "in": "query",
+            "required": false,
+            "description": "Used to filter available rooms by creation date.",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "pageNum",
+            "in": "query",
+            "required": false,
+            "description": "Number of the page (Validation: minimum value 1).",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1,
+              "default": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "description": "Number of elements on a single page (Validation: whole number between 1 and 100).",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 10
+            }
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "required": false,
+            "description": "The field to sort the available rooms by.",
+            "schema": {
+              "type": "string",
+              "default": "roomName"
+            }
+          },
+          {
+            "name": "sortDirection",
+            "in": "query",
+            "required": false,
+            "description": "Direction to sort the rooms in (Validation: 'asc' or 'desc').",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "default": "asc"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success: List of available museum rooms retrieved.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GetRoomsNotExhDTO"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid parameters for filters or paging."
+          },
+          "401": {
+            "description": "Unauthorized access."
+          }
+        }
+      }
+    },
+    "/ExhibitRoom/add-exhibitroom": {
+      "post": {
+        "tags": [
+          "ExhibitRoom"
+        ],
+        "summary": "Adds a room to an exhibit",
+        "description": "Creates a many-to-many relationship record between an Exhibit and a Room. Verifies that both the exhibit and the room exist before saving the data.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddExhibitRoomDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Room successfully added to the exhibit."
+          },
+          "400": {
+            "description": "Validation failed: The exhibit or the room not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": "Exhibit not found / Room not found"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized access."
+          }
+        }
+      }
+    },
+    "/ExhibitRoom/delete-exhibitroom/{ehxroomId}": {
+      "delete": {
+        "tags": [
+          "ExhibitRoom"
+        ],
+        "summary": "Removes a room from an exhibit (Soft Delete)",
+        "description": "Marks exhibit-room entry as deleted.",
+        "parameters": [
+          {
+            "name": "ehxroomId",
+            "in": "path",
+            "required": true,
+            "description": "The ID of the exhibit-room.",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Room removed from the exhibit successfully."
+          },
+          "404": {
+            "description": "The room does not belong to the exhibit.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": "The room does not belong to the exhibit."
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized access."
+          }
+        }
+      }
+    },
+	"/Fund/getfunds": {
+      "get": {
+        "tags": [
+          "Fund"
+        ],
+        "summary": "Returns a list of funds with filtering, sorting, and paging.",
+        "description": "Retrieves a list of funding records in the museum system. Supports paging, sorting, and filtering by two fields (amount and studyName).",
+        "parameters": [
+          {
+            "name": "studyName",
+            "in": "query",
+            "required": false,
+            "description": "Used to filter funds by the research study they are for.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "minAmount",
+            "in": "query",
+            "required": false,
+            "description": "Used to filter funds with an amount greater than or equal to the given.",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "pageNum",
+            "in": "query",
+            "required": false,
+            "description": "Number of the page (Validation: minimum value 1).",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1,
+              "default": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "description": "Number of elements on a single page (Validation: whole number between 1 and 100).",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 10
+            }
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "required": false,
+            "description": "The field to sort the funds by.",
+            "schema": {
+              "type": "string",
+              "default": "amount"
+            }
+          },
+          {
+            "name": "sortDirection",
+            "in": "query",
+            "required": false,
+            "description": "Direction to sort the funds in (Validation: 'asc' or 'desc').",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "default": "asc"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success: Here is the list of the (optionally filtered and sorted) funds.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GetFundsDTO"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid parameters for filters or paging."
+          },
+          "401": {
+            "description": "Unauthorized access."
+          }
+        }
+      }
+    },
+    "/Fund/getfund/{fundId}": {
+      "get": {
+        "tags": [
+          "Fund"
+        ],
+        "summary": "Returns details for a specific fund",
+        "description": "Retrieves the data for a given fund.",
+        "parameters": [
+          {
+            "name": "fundId",
+            "in": "path",
+            "required": true,
+            "description": "The ID of the fund.",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success: Fund found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetFundDTO"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized access."
+          }
+        }
+      }
+    },
+    "/Fund/addfund": {
+      "post": {
+        "tags": [
+          "Fund"
+        ],
+        "summary": "Creates a new funding record",
+        "description": "Adds a new funding entry. Validates currency, reason, partner, and study.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddFundDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Fund created successfully."
+          },
+          "400": {
+            "description": "Validation failed: Currency or reason missing, or related partner/study not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": "Currency is required / Reason is required / Partner not found / Study not found"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized access."
+          }
+        }
+      }
+    },
+    "/Fund/editfund": {
+      "post": {
+        "tags": [
+          "Fund"
+        ],
+        "summary": "Updates an existing fund",
+        "description": "Updates all editable values of a fund based on its ID.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateFundDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Fund updated successfully."
+          },
+          "400": {
+            "description": "Validation failed: Empty fields, or related partner/study/fund not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": "Fund not found / Partner not found / Study not found"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized access."
+          }
+        }
+      }
+    },
+    "/Fund/deletefund/{fundId}": {
+      "delete": {
+        "tags": [
+          "Fund"
+        ],
+        "summary": "Deletes a fund (Soft Delete)",
+        "description": "Marks a fund record as deleted.",
+        "parameters": [
+          {
+            "name": "fundId",
+            "in": "path",
+            "required": true,
+            "description": "The unique database ID of the fund to soft-delete.",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Fund deleted successfully."
+          },
+          "404": {
+            "description": "Fund not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": "Fund not found"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized access."
+          }
+        }
+      }
+    },
+	"/ItemAttrValue/getitem-attrvalues/{itemId}": {
+      "get": {
+        "tags": [
+          "ItemAttrValue"
+        ],
+        "summary": "Returns attribute values for a given item with filtering, sorting, and paging.",
+        "description": "Retrieves a list of attributes and their values for a given museum item. Supports filtering by attribute name and value name.",
+        "parameters": [
+          {
+            "name": "itemId",
+            "in": "path",
+            "required": true,
+            "description": "The ID of the item.",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "attrName",
+            "in": "query",
+            "required": false,
+            "description": "Used to filter results by the attribute's name.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "valueName",
+            "in": "query",
+            "required": false,
+            "description": "Used to filter results by the specific value.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "pageNum",
+            "in": "query",
+            "required": false,
+            "description": "Number of the page (Validation: minimum value 1).",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1,
+              "default": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "description": "Number of elements on a single page (Validation: whole number between 1 and 100).",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 10
+            }
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "required": false,
+            "description": "The field to sort the item attribute values by.",
+            "schema": {
+              "type": "string",
+              "default": "attrName"
+            }
+          },
+          {
+            "name": "sortDirection",
+            "in": "query",
+            "required": false,
+            "description": "Direction to sort the results in (Validation: 'asc' or 'desc').",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "default": "asc"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success: List of item attribute values retrieved.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GetIAValuesDTO"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid parameters for filters or paging."
+          },
+          "401": {
+            "description": "Unauthorized access."
+          }
+        }
+      }
+    },
+    "/ItemAttrValue/additem-attrvalue": {
+      "post": {
+        "tags": [
+          "ItemAttrValue"
+        ],
+        "summary": "Assigns an attribute value to an item",
+        "description": "Links a specific attribute value to a museum item. Validates both the item and the attribute exist.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddItemAttrValueDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Attribute value successfully assigned to the item."
+          },
+          "400": {
+            "description": "Validation failed: Attribute or value not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": "Item not found / Attribute Value not found"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized access."
+          }
+        }
+      }
+    },
+    "/ItemAttrValue/deleteitem-attrvalue/{iavId}": {
+      "delete": {
+        "tags": [
+          "ItemAttrValue"
+        ],
+        "summary": "Removes an attribute value from an item (Soft Delete)",
+        "description": "Marks an attribute value for an item as deleted.",
+        "parameters": [
+          {
+            "name": "iavId",
+            "in": "path",
+            "required": true,
+            "description": "The ID from ItemAttrValues.",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Item attribute value removed successfully."
+          },
+          "404": {
+            "description": "The attribute value does not belong to the item.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": "This value does not belong to the item."
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized access."
+          }
+        }
+      }
+    },
+	"/Item/getitems": {
+      "get": {
+        "tags": [
+          "Item"
+        ],
+        "summary": "Returns a list of items with filtering, sorting, and paging.",
+        "description": "Retrieves a list of museum items. Supports paging, sorting, and filtering by two fields (item name and international ID).",
+        "parameters": [
+          {
+            "name": "itemName",
+            "in": "query",
+            "required": false,
+            "description": "Used to filter the list by item name.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "internationalID",
+            "in": "query",
+            "required": false,
+            "description": "Used to filter the list by its international id.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "pageNum",
+            "in": "query",
+            "required": false,
+            "description": "Number of the page (Validation: minimum value 1).",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1,
+              "default": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "description": "Number of elements on a single page (Validation: whole number between 1 and 100).",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 10
+            }
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "required": false,
+            "description": "The field to sort the items by.",
+            "schema": {
+              "type": "string",
+              "default": "itemName"
+            }
+          },
+          {
+            "name": "sortDirection",
+            "in": "query",
+            "required": false,
+            "description": "Direction to sort the items in (Validation: 'asc' or 'desc').",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "default": "asc"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success: Here is the list of the (optionally filtered and sorted) museum items.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GetItemsDTO"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid parameters for filters or paging."
+          },
+          "401": {
+            "description": "Unauthorized access."
+          }
+        }
+      }
+    },
+    "/Item/getitem/{itemId}": {
+      "get": {
+        "tags": [
+          "Item"
+        ],
+        "summary": "Returns details for a specific item",
+        "description": "Retrieves the data for a given museum item.",
+        "parameters": [
+          {
+            "name": "itemId",
+            "in": "path",
+            "required": true,
+            "description": "The ID of the item.",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success: Item found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetItemDTO"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Item not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": "Item not found"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized access."
+          }
+        }
+      }
+    },
+    "/Item/additem": {
+      "post": {
+        "tags": [
+          "Item"
+        ],
+        "summary": "Creates a new museum item",
+        "description": "Adds a new museum item to the system. ID and date are generated automatically.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddItemRequestDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Item created successfully."
+          },
+          "400": {
+            "description": "Validation failed: Name is missing or the collection does not exist.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": "Name is required / Collection not found."
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized access."
+          }
+        }
+      }
+    },
+    "/Item/edititem": {
+      "post": {
+        "tags": [
+          "Item"
+        ],
+        "summary": "Updates an existing item",
+        "description": "Modifies all editable fields of a museum item based on its ID. Validates fields, collection existance, and item existence.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateItemRequestDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Item updated successfully."
+          },
+          "400": {
+            "description": "Invalid or empty fields, item not found, collection not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": "Item not found / Collection not found."
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized access."
+          }
+        }
+      }
+    },
+    "/Item/deleteitem/{itemId}": {
+      "delete": {
+        "tags": [
+          "Item"
+        ],
+        "summary": "Deletes a museum item (Soft Delete)",
+        "description": "Marks an item as deleted.",
+        "parameters": [
+          {
+            "name": "itemId",
+            "in": "path",
+            "required": true,
+            "description": "The ID of the item.",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Item deleted successfully."
+          },
+          "404": {
+            "description": "Item not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": "Item not found"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized access."
+          }
+        }
+      }
+    },
+	 "/Loan/getloans": {
+      "get": {
+        "tags": [
+          "Loan"
+        ],
+        "summary": "Returns a list of loans with filtering, sorting, and paging.",
+        "description": "Retrieves a list of internal and external museum item loans. Supports paging, sorting, and filtering by two fields (loan type and status).",
+        "parameters": [
+          {
+            "name": "loanType",
+            "in": "query",
+            "required": false,
+            "description": "Used to filter loans by type.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "outgoing",
+                "incoming"
+              ]
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "description": "Used to filter loans by their state.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "future",
+                "ongoing",
+                "finished"
+              ]
+            }
+          },
+          {
+            "name": "pageNum",
+            "in": "query",
+            "required": false,
+            "description": "Number of the page (Validation: minimum value 1).",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1,
+              "default": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "description": "Number of elements on a single page (Validation: whole number between 1 and 100).",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 10
+            }
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "required": false,
+            "description": "The field to sort the loans by.",
+            "schema": {
+              "type": "string",
+              "default": "startDate"
+            }
+          },
+          {
+            "name": "sortDirection",
+            "in": "query",
+            "required": false,
+            "description": "Direction to sort the loans in (Validation: 'asc' or 'desc').",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "default": "asc"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success: Here is the list of the (optionally filtered and sorted) loans.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GetLoansDTO"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid parameters for filters or paging."
+          },
+          "401": {
+            "description": "Unauthorized access."
+          }
+        }
+      }
+    },
+    "/Loan/getloan/{loanId}": {
+      "get": {
+        "tags": [
+          "Loan"
+        ],
+        "summary": "Returns details for a specific loan",
+        "description": "Retrieves the data for a specific loan.",
+        "parameters": [
+          {
+            "name": "loanId",
+            "in": "path",
+            "required": true,
+            "description": "The ID of the loan.",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success: Loan found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetLoanDTO"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized access."
+          }
+        }
+      }
+    },
+    "/Loan/addloan": {
+      "post": {
+        "tags": [
+          "Loan"
+        ],
+        "summary": "Creates a new loan record",
+        "description": "Adds a new entry for an item loan. Generates the ID, creation date, and validates the type and partner.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddLoanDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Loan record generated successfully."
+          },
+          "400": {
+            "description": "Validation failed: Partner not found or loan type is invalid.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": "Partner not found / Invalid loan type!"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized access."
+          }
+        }
+      }
+    },
+    "/Loan/editloan": {
+      "post": {
+        "tags": [
+          "Loan"
+        ],
+        "summary": "Updates an existing loan",
+        "description": "Modifies fields of a loan record. Validates partner, loan existence, and loan type.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateLoanDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Loan updated successfully."
+          },
+          "400": {
+            "description": "Partner or loan type not found or invalid.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": "Partner not found / Invalid loan type!"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Loan not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": "Loan not found"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized access."
+          }
+        }
+      }
+    },
+    "/Loan/deleteloan/{loanId}": {
+      "delete": {
+        "tags": [
+          "Loan"
+        ],
+        "summary": "Deletes a loan (Soft Delete)",
+        "description": "Flags a loan as deleted.",
+        "parameters": [
+          {
+            "name": "loanId",
+            "in": "path",
+            "required": true,
+            "description": "The ID of the loan.",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Loan deleted successfully."
+          },
+          "404": {
+            "description": "Loan not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": "Loan not found"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized access."
+          }
+        }
+      }
+    },
+	 "/LoanItem/getloanitems/{loanID}": {
+      "get": {
+        "tags": [
+          "LoanItem"
+        ],
+        "summary": "Returns items in a given loan with filtering, sorting, and paging.",
+        "description": "Retrieves a list of museum items in a given loan. Includes options to filter results by item name and date it was added to the loan.",
+        "parameters": [
+          {
+            "name": "loanID",
+            "in": "path",
+            "required": true,
+            "description": "The ID of the loan.",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "itemName",
+            "in": "query",
+            "required": false,
+            "description": "Used to filter loan items by name.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "dtCreated",
+            "in": "query",
+            "required": false,
+            "description": "Used to filter loan items by the date they were added to the loan.",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "pageNum",
+            "in": "query",
+            "required": false,
+            "description": "Number of the page (Validation: minimum value 1).",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1,
+              "default": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "description": "Number of elements on a single page (Validation: whole number between 1 and 100).",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 10
+            }
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "required": false,
+            "description": "The field to sort the items by (e.g., 'itemName' or 'dt').",
+            "schema": {
+              "type": "string",
+              "default": "itemName"
+            }
+          },
+          {
+            "name": "sortDirection",
+            "in": "query",
+            "required": false,
+            "description": "Direction to sort the results in (Validation: 'asc' or 'desc').",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "default": "asc"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success: List of items assigned to the loan retrieved.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GetLoanItemsDTO"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid parameters for filters or paging."
+          },
+          "401": {
+            "description": "Unauthorized access."
+          }
+        }
+      }
+    },
+    "/LoanItem/addloanitem": {
+      "post": {
+        "tags": [
+          "LoanItem"
+        ],
+        "summary": "Adds an item to a loan",
+        "description": "Creates a many-to-many connection between an item and a loan. Validates the existence of both item and loan.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddLoanItemDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Item added to the loan successfully."
+          },
+          "400": {
+            "description": "Validation failed: The loan or item not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": "Loan not found / Item not found"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized access."
+          }
+        }
+      }
+    },
+    "/LoanItem/deleteloanitem/{litemId}": {
+      "delete": {
+        "tags": [
+          "LoanItem"
+        ],
+        "summary": "Removes an item from a loan (Soft Delete)",
+        "description": "Marks a loan item as deleted",
+        "parameters": [
+          {
+            "name": "litemId",
+            "in": "path",
+            "required": true,
+            "description": "The ID from the LoanItems table.",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Item successfully removed from loan."
+          },
+          "404": {
+            "description": "Item doesn't belong to the loan.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": "Item doesn't belong to the loan"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized access."
+          }
+        }
+      }
+    },
+	 "/Partner/getpartnertypes": {
+      "get": {
+        "tags": [
+          "Partner"
+        ],
+        "summary": "Returns a list of partner types with filtering, sorting, and paging.",
+        "description": "Returns a list of types for museum partners. Supports filtering by type name and creation date.",
+        "parameters": [
+          {
+            "name": "typeName",
+            "in": "query",
+            "required": false,
+            "description": "Used to filter partner types by name.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "dtCreated",
+            "in": "query",
+            "required": false,
+            "description": "Used to filter partner types by their creation date.",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "pageNum",
+            "in": "query",
+            "required": false,
+            "description": "Number of the page (Validation: minimum value 1).",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1,
+              "default": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "description": "Number of elements on a single page (Validation: whole number between 1 and 100).",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 10
+            }
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "required": false,
+            "description": "The field to sort the types by.",
+            "schema": {
+              "type": "string",
+              "default": "typeName"
+            }
+          },
+          {
+            "name": "sortDirection",
+            "in": "query",
+            "required": false,
+            "description": "Direction to sort the results in (Validation: 'asc' or 'desc').",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "default": "asc"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success: List of partner types retrieved.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GetPartnerTypesDTO"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid parameters for filters or paging."
+          },
+          "401": {
+            "description": "Unauthorized access."
+          }
+        }
+      }
+    },
+	"/Partner/getpartners": {
+      "get": {
+        "tags": [
+          "Partner"
+        ],
+        "summary": "Returns a list of partners with filtering, sorting, and paging.",
+        "description": "Retrieves a list of museum partners. Supports filtering by partner name and VAT number.",
+        "parameters": [
+          {
+            "name": "partnerName",
+            "in": "query",
+            "required": false,
+            "description": "Used to filter partner organisations by their name.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "vat",
+            "in": "query",
+            "required": false,
+            "description": "Used to filter partners by their VAT number.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "pageNum",
+            "in": "query",
+            "required": false,
+            "description": "Number of the page (Validation: minimum value 1).",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1,
+              "default": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "description": "Number of elements on a single page (Validation: whole number between 1 and 100).",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 10
+            }
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "required": false,
+            "description": "The field to sort the partners by.",
+            "schema": {
+              "type": "string",
+              "default": "partnerName"
+            }
+          },
+          {
+            "name": "sortDirection",
+            "in": "query",
+            "required": false,
+            "description": "Direction to sort the results in (Validation: 'asc' or 'desc').",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "default": "asc"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success: List of partners retrieved.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GetPartnersDTO"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid parameters for filters or paging."
+          },
+          "401": {
+            "description": "Unauthorized access."
+          }
+        }
+      }
+    },
+    "/Partner/getpartner/{partnerId}": {
+      "get": {
+        "tags": [
+          "Partner"
+        ],
+        "summary": "Returns details for a specific partner",
+        "description": "Retrieves the data for a given partner.",
+        "parameters": [
+          {
+            "name": "partnerId",
+            "in": "path",
+            "required": true,
+            "description": "The ID of the partner organisation.",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success: Partner data retrieved.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetPartnerDTO"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized access."
+          }
+        }
+      }
+    },
+    "/Partner/addpartner": {
+      "post": {
+        "tags": [
+          "Partner"
+        ],
+        "summary": "Creates a new partner organisation",
+        "description": "Adds a partner organisation to the museum's system. Validates strings for required inputs and checks if the partner type exists.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddPartnerDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Partner added successfully."
+          },
+          "400": {
+            "description": "Validation failed: Missing values or type not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": "Name is required / VAT is required / Type not found"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized access."
+          }
+        }
+      }
+    },
+    "/Partner/addpartnertype": {
+      "post": {
+        "tags": [
+          "Partner"
+        ],
+        "summary": "Creates a new partner type",
+        "description": "Adds a partner type to the museum's system.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddPartnerTypeDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Partner type created successfully."
+          },
+          "400": {
+            "description": "Validation failed: Name value cannot be empty.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": "Name is required"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized access."
+          }
+        }
+      }
+    },
+    "/Partner/editpartner": {
+      "post": {
+        "tags": [
+          "Partner"
+        ],
+        "summary": "Updates an existing partner",
+        "description": "Modifies an existing partner record. Validates partner and type exist, validates field input values.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePartnerDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Partner updated successfully."
+          },
+          "400": {
+            "description": "Empty values, partner type not found, partner not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": "Name is required / Type not found / Partner not found"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized access."
+          }
+        }
+      }
+    },
+    "/Partner/editpartnertype": {
+      "post": {
+        "tags": [
+          "Partner"
+        ],
+        "summary": "Updates a partner type",
+        "description": "Modifies a given partner type.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePartnerTypeDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Partner type updated successfully."
+          },
+          "400": {
+            "description": "Name empty, partner type not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": "Name is required / Type not found"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized access."
+          }
+        }
+      }
+    },
+    "/Partner/deletepartnertype/{typeId}": {
+      "delete": {
+        "tags": [
+          "Partner"
+        ],
+        "summary": "Deletes a partner type (Soft Delete)",
+        "description": "Marks partner type as deleted.",
+        "parameters": [
+          {
+            "name": "typeId",
+            "in": "path",
+            "required": true,
+            "description": "The ID of the partner type.",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Partner type removed successfully."
+          },
+          "404": {
+            "description": "Partner type not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": "Type not found"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized access."
+          }
+        }
+      }
+    },
+    "/Partner/deletepartner/{partnerId}": {
+      "delete": {
+        "tags": [
+          "Partner"
+        ],
+        "summary": "Deletes a partner (Soft Delete)",
+        "description": "Marks a partner as deleted.",
+        "parameters": [
+          {
+            "name": "partnerId",
+            "in": "path",
+            "required": true,
+            "description": "The ID of the partner.",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Partner deleted successfully."
+          },
+          "404": {
+            "description": "Partner not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": "Partner not found"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized access."
+          }
+        }
+      }
+    },
+	    "/Room/getrooms": {
+      "get": {
+        "tags": [
+          "Room"
+        ],
+        "summary": "Returns a list of rooms with filtering, sorting, and paging.",
+        "description": "Retrieves a list of museum rooms. Supports paging, sorting, and filtering by two fields (room name and maximum temperature threshold).",        "parameters": [
+          {
+            "name": "roomName",
+            "in": "query",
+            "required": false,
+            "description": "Used to filter rooms by their name.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "maxTemperature",
+            "in": "query",
+            "required": false,
+            "description": "Used to filter rooms with an ambient temperature less than or equal to this value.",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "pageNum",
+            "in": "query",
+            "required": false,
+            "description": "Number of the page (Validation: minimum value 1).",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1,
+              "default": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "description": "Number of elements on a single page (Validation: whole number between 1 and 100).",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 10
+            }
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "required": false,
+            "description": "The field to sort the rooms by.",
+            "schema": {
+              "type": "string",
+              "default": "roomName"
+            }
+          },
+          {
+            "name": "sortDirection",
+            "in": "query",
+            "required": false,
+            "description": "Direction to sort the rooms in (Validation: 'asc' or 'desc').",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "default": "asc"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success: Here is the list of the (optionally filtered and sorted) rooms.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GetAllRoomsDTO"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid parameters for filters or paging."
+          },
+          "401": {
+            "description": "Unauthorized access."
+          }
+        }
+      }
+    },
+	    "/Room/getroom/{roomId}": {
+      "get": {
+        "tags": [
+          "Room"
+        ],
+        "summary": "Returns details for a specific room",
+        "description": "Retrieves the data for a given room.",
+        "parameters": [
+          {
+            "name": "roomId",
+            "in": "path",
+            "required": true,
+            "description": "The ID of the room.",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success: Room found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetRoomDTO"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Room not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": "Room not found"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized access."
+          }
+        }
+      }
+    },
+    "/Room/addroom": {
+      "post": {
+        "tags": [
+          "Room"
+        ],
+        "summary": "Creates a new room",
+        "description": "Adds a new room to the Museum's database with environment requirements (temperature, humidity, light exposure).",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddRoomRequestDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Room added successfully."
+          },
+          "400": {
+            "description": "Room name is missing or invalid.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": "Room name is required"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized access."
+          }
+        }
+      }
+    },
+	"/Room/editroom": {
+      "post": {
+        "tags": [
+          "Room"
+        ],
+        "summary": "Updates an existing room's information",
+        "description": "Updates the name and environmental specifications of a given room.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateRoomRequestDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Room updated successfully."
+          },
+          "400": {
+            "description": "Invalid input field values or room not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": "Room not found"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized access."
+          }
+        }
+      }
+    },
+	    "/Room/deleteroom/{roomId}": {
+      "delete": {
+        "tags": [
+          "Room"
+        ],
+        "summary": "Deletes a room (Soft Delete)",
+        "description": "Marks a room as deleted.",
+        "parameters": [
+          {
+            "name": "roomId",
+            "in": "path",
+            "required": true,
+            "description": "The ID of the room.",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Room deleted successfully."
+          },
+          "404": {
+            "description": "Room not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": "Room not found"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized access."
+          }
+        }
+      }
+    },
+	    "/Student/getstudents": {
+      "get": {
+        "tags": [
+          "Student"
+        ],
+        "summary": "Returns a list of students with filtering, sorting, and paging.",
+        "description": "Retrieves a list of students registered for ineternships at the museum. Supports filtering by the student's full name and the partner organisation they come from.",
+        "parameters": [
+          {
+            "name": "fullName",
+            "in": "query",
+            "required": false,
+            "description": "Used to filter students by their name.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "partnerName",
+            "in": "query",
+            "required": false,
+            "description": "Used to filter students based on the name of the partner university or organization they are a part of.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "pageNum",
+            "in": "query",
+            "required": false,
+            "description": "Number of the page (Validation: minimum value 1).",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1,
+              "default": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "description": "Number of elements on a single page (Validation: whole number between 1 and 100).",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 10
+            }
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "required": false,
+            "description": "The field to sort the students by (e.g., 'fullName' or 'partnerName').",
+            "schema": {
+              "type": "string",
+              "default": "fullName"
+            }
+          },
+          {
+            "name": "sortDirection",
+            "in": "query",
+            "required": false,
+            "description": "Direction to sort the results in (Validation: 'asc' or 'desc').",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "default": "asc"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success: List of students retrieved successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GetStudentsDTO"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid parameters for filters or paging."
+          },
+          "401": {
+            "description": "Unauthorized access."
+          }
+        }
+      }
+    },
+	    "/Student/getstudent/{studentId}": {
+      "get": {
+        "tags": [
+          "Student"
+        ],
+        "summary": "Returns details for a specific student",
+        "description": "Retrieves the data for a given student.",
+        "parameters": [
+          {
+            "name": "studentId",
+            "in": "path",
+            "required": true,
+            "description": "The ID of the student.",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success: Student found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetStudentDTO"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized access."
+          }
+        }
+      }
+    },
+    "/Student/addstudent": {
+      "post": {
+        "tags": [
+          "Student"
+        ],
+        "summary": "Adds a new student",
+        "description": "Registers a new student. Generates the ID, creation date, and verifies the partner organisation exists.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddStudentDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Student created successfully."
+          },
+          "400": {
+            "description": "Empty/Invalid input fields or the partner organisation not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": "First name is required / Last name is required / Partner not found"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized access."
+          }
+        }
+      }
+    },
+	    "/Student/editstudent": {
+      "post": {
+        "tags": [
+          "Student"
+        ],
+        "summary": "Updates an existing student.",
+        "description": "Modifies the details of a student's data. Validates text fields, partner existence, and student existance.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateStudentDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Student data modified successfully."
+          },
+          "400": {
+            "description": "Invvalid input for name/Partner organisation not found/Student not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": "First name is required / First name is required / Partner not found / Student not found"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized access."
+          }
+        }
+      }
+    },
+    "/Student/deletestudent/{studentId}": {
+      "delete": {
+        "tags": [
+          "Student"
+        ],
+        "summary": "Deletes a student profile (Soft Delete)",
+        "description": "Marks a student as deleted.",
+        "parameters": [
+          {
+            "name": "studentId",
+            "in": "path",
+            "required": true,
+            "description": "The ID of the student.",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Student deleted successfully."
+          },
+          "404": {
+            "description": "Student not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": "Student not found"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized access."
+          }
+        }
+      }
+    },
+	    "/Study/getstudies": {
+      "get": {
+        "tags": [
+          "Study"
+        ],
+        "summary": "Returns a list of research studies with filtering, sorting, and paging.",
+        "description": "Retrieves a list of research studies. If the user is not an administrator, the list shows only studies assigned to the logged researcher. The user information is taken automatically from the jwt token",
+        "parameters": [
+          {
+            "name": "studyName",
+            "in": "query",
+            "required": false,
+            "description": "Used to filter the list by study name.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "description": "Used to filter studies by their status.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "future",
+                "ongoing",
+                "finished"
+              ]
+            }
+          },
+          {
+            "name": "pageNum",
+            "in": "query",
+            "required": false,
+            "description": "Number of the page (Validation: minimum value 1).",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1,
+              "default": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "description": "Number of elements on a single page (Validation: whole number between 1 and 100).",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 10
+            }
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "required": false,
+            "description": "The field to sort the studies by.",
+            "schema": {
+              "type": "string",
+              "default": "studyName"
+            }
+          },
+          {
+            "name": "sortDirection",
+            "in": "query",
+            "required": false,
+            "description": "Direction to sort the studies in (Validation: 'asc' or 'desc').",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "default": "asc"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success: Here is the list of research studies.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GetStudiesDTO"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid parameters for filters or paging."
+          },
+          "401": {
+            "description": "Unauthorized access."
+          }
+        }
+      }
+    },
+    "/Study/getstudy/{studyId}": {
+      "get": {
+        "tags": [
+          "Study"
+        ],
+        "summary": "Returns details for a specific research study",
+        "description": "Retrieves the data for a given study.",
+        "parameters": [
+          {
+            "name": "studyId",
+            "in": "path",
+            "required": true,
+            "description": "The id of the study.",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success: Study record retrieved.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetStudyDTO"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized access."
+          }
+        }
+      }
+    },
+    "/Study/addstudy": {
+      "post": {
+        "tags": [
+          "Study"
+        ],
+        "summary": "Adds a new research study",
+        "description": "Adds a new studyto the database.ID, creation date, and logged reseracher are added automatically. Validates input fields.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddStudyDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Study added successfully."
+          },
+          "400": {
+            "description": "Invalid or empty input fields.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": "Study name is required."
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized access. User must be logged in."
+          }
+        }
+      }
+    },
+    "/Study/editstudy": {
+      "post": {
+        "tags": [
+          "Study"
+        ],
+        "summary": "Updates an existing study.",
+        "description": "Modifies the data for a given study.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateStudyDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Study modified successfully."
+          },
+          "400": {
+            "description": "Study not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": "Study not found"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized access."
+          }
+        }
+      }
+    },
+    "/Study/deletestudy/{studyId}": {
+      "delete": {
+        "tags": [
+          "Study"
+        ],
+        "summary": "Deletes a research study (Soft Delete)",
+        "description": "Marks a study as deleted.",
+        "parameters": [
+          {
+            "name": "studyId",
+            "in": "path",
+            "required": true,
+            "description": "The ID of the research study.",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Study deleted successfully."
+          },
+          "404": {
+            "description": "Study not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": "Study not found"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized access."
+          }
+        }
+      }
+    },
+	    "/StudyResearcher/getstudyresearchers/{studyID}": {
+      "get": {
+        "tags": [
+          "StudyResearcher"
+        ],
+        "summary": "Returns a list of researchers assigned to a given study with filtering, sorting, and paging.",
+        "description": "Retrieves a  list of researchers linked to a given study. Supports filtering by researcher name and assignment date.",
+        "parameters": [
+          {
+            "name": "studyID",
+            "in": "path",
+            "required": true,
+            "description": "The ID of the study.",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "researcherName",
+            "in": "query",
+            "required": false,
+            "description": "Used to filter researchers by their full name.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "dtAssigned",
+            "in": "query",
+            "required": false,
+            "description": "Used to filter researchers based on the day they were added to the study.",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "pageNum",
+            "in": "query",
+            "required": false,
+            "description": "Number of the page (Validation: minimum value 1).",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1,
+              "default": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "description": "Number of elements on a single page (Validation: whole number between 1 and 100).",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 10
+            }
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "required": false,
+            "description": "The field to sort the team members by (e.g., 'researcherName' or 'dt').",
+            "schema": {
+              "type": "string",
+              "default": "researcherName"
+            }
+          },
+          {
+            "name": "sortDirection",
+            "in": "query",
+            "required": false,
+            "description": "Direction to sort the results in (Validation: 'asc' or 'desc').",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "default": "asc"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success: List of researchers in the study retrieved.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GetStudyResearchersDTO"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid parameters for filters or paging or study not found."
+          },
+          "401": {
+            "description": "Unauthorized access."
+          }
+        }
+      }
+    },
+    "/StudyResearcher/addstudyresearcher": {
+      "post": {
+        "tags": [
+          "StudyResearcher"
+        ],
+        "summary": "Assigns a researcher to a study",
+        "description": "Adds a Researcher (User) to a Study. Verifies the existence of both entities.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddStudyResearcherDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Researcher added to the study successfully."
+          },
+          "400": {
+            "description": "Study or researcher not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": "Study not found / Researcher not found"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized access."
+          }
+        }
+      }
+    },
+    "/StudyResearcher/deletestudyresearcher/{srId}": {
+      "delete": {
+        "tags": [
+          "StudyResearcher"
+        ],
+        "summary": "Removes a researcher from a study (Soft Delete)",
+        "description": "Marks a study reseracher as deleted.",
+        "parameters": [
+          {
+            "name": "srId",
+            "in": "path",
+            "required": true,
+            "description": "The ID from the StudyResearchers table.",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Researcher successfully removed from the study."
+          },
+          "404": {
+            "description": "Researcher doesn't belong to the study.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": "Researcher doesn't belong to the study."
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized access."
+          }
+        }
+      }
+    },
+	    "/StudyStudent/getstudystudents/{studyId}": {
+      "get": {
+        "tags": [
+          "StudyStudent"
+        ],
+        "summary": "Returns students assigned to a specific study with filtering, sorting, and paging.",
+        "description": "Retrieves a list of students assigned to a given research study. Supports filtering records by student full name and their organization.",
+        "parameters": [
+          {
+            "name": "studyId",
+            "in": "path",
+            "required": true,
+            "description": "The ID of the research study.",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "fullName",
+            "in": "query",
+            "required": false,
+            "description": "Used to filter assigned students by their first and last name.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "partnerName",
+            "in": "query",
+            "required": false,
+            "description": "Used to filter results based on the partner organisation name.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "pageNum",
+            "in": "query",
+            "required": false,
+            "description": "Number of the page (Validation: minimum value 1).",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1,
+              "default": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "description": "Number of elements on a single page (Validation: whole number between 1 and 100).",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 10
+            }
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "required": false,
+            "description": "The field to sort the assigned students by.",
+            "schema": {
+              "type": "string",
+              "default": "fullName"
+            }
+          },
+          {
+            "name": "sortDirection",
+            "in": "query",
+            "required": false,
+            "description": "Direction to sort the results in (Validation: 'asc' or 'desc').",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "default": "asc"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success: List of students assigned to the research study retrieved.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GetStudyStudentsDTO"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid parameters for filters or paging."
+          },
+          "401": {
+            "description": "Unauthorized access."
+          }
+        }
+      }
+    },
+    "/StudyStudent/addstudystudent": {
+      "post": {
+        "tags": [
+          "StudyStudent"
+        ],
+        "summary": "Assigns a student to a research study",
+        "description": "Adds a Student to a Study. Verifies that both the study and student exist.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddStudyStudentDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Student assigned to the research study successfully."
+          },
+          "400": {
+            "description": "Study or student not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": "Study not found / Student not found"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized access."
+          }
+        }
+      }
+    },
+    "/StudyStudent/deletestudystudent/{ssId}": {
+      "delete": {
+        "tags": [
+          "StudyStudent"
+        ],
+        "summary": "Removes a student from a study (Soft Delete)",
+        "description": "Marks the student-study pair as deleted.",
+        "parameters": [
+          {
+            "name": "ssId",
+            "in": "path",
+            "required": true,
+            "description": "The ID from the StudyStudents table.",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Student successfully removed from the study."
+          },
+          "404": {
+            "description": "Student not a part of the study.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": "Student not a part of the study"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized access."
+          }
+        }
+      }
+    },
+	    "/Users/getroles": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Returns a list of user roles with filtering, sorting, and paging.",
+        "description": "Retrieves a list of user roles. Supports filtering by name and creation date.",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "required": false,
+            "description": "Used to filter roles by their name.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "dtCreated",
+            "in": "query",
+            "required": false,
+            "description": "Used to filter roles by their creation date.",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "pageNum",
+            "in": "query",
+            "required": false,
+            "description": "Number of the page (Validation: minimum value 1).",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1,
+              "default": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "description": "Number of elements on a single page (Validation: whole number between 1 and 100).",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 10
+            }
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "required": false,
+            "description": "The field to sort the roles by.",
+            "schema": {
+              "type": "string",
+              "default": "name"
+            }
+          },
+          {
+            "name": "sortDirection",
+            "in": "query",
+            "required": false,
+            "description": "Direction to sort the results in (Validation: 'asc' or 'desc').",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "default": "asc"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success: List of user roles retrieved.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GetAllRolesResponseDTO"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid parameters for filters or paging."
+          },
+          "401": {
+            "description": "Unauthorized access."
+          }
+        }
+      }
+    },
+    "/Users/addrole": {
+      "post": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Creates a new user role",
+        "description": "Adds a new user role to the system.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddRoleRequestDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Role added successfully."
+          },
+          "400": {
+            "description": "Invalid or missing role name."
+          },
+          "401": {
+            "description": "Unauthorized access."
+          }
+        }
+      }
+    },
+    "/Users/editrole": {
+      "post": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Updates an existing role's name",
+        "description": "Edits the role's editable data (name). Validates string input.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateRoleRequestDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Role updated successfully."
+          },
+          "404": {
+            "description": "Role not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": "Role not found"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized access."
+          }
+        }
+      }
+    },
+    "/Users/deleterole/{roleId}": {
+      "delete": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Deletes a specific user role (Soft Delete)",
+        "description": "Marks an user role as deleted.",
+        "parameters": [
+          {
+            "name": "roleId",
+            "in": "path",
+            "required": true,
+            "description": "The id of the role.",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Role deleted successfully."
+          },
+          "404": {
+            "description": "Role not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": "Role not found"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized access."
+          }
+        }
+      }
+    },
+    "/Users/getusers": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Returns a list of all active users with filtering, sorting, and paging.",
+        "description": "Retrieves a list of users. Supports filtering by full name and role.",
+        "parameters": [
+          {
+            "name": "fullName",
+            "in": "query",
+            "required": false,
+            "description": "Used to filter users by their full name.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "roleName",
+            "in": "query",
+            "required": false,
+            "description": "Used to filter users by their role.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "pageNum",
+            "in": "query",
+            "required": false,
+            "description": "Number of the page (Validation: minimum value 1).",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1,
+              "default": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "description": "Number of elements on a single page (Validation: whole number between 1 and 100).",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 10
+            }
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "required": false,
+            "description": "The field to sort the profiles by.",
+            "schema": {
+              "type": "string",
+              "default": "username"
+            }
+          },
+          {
+            "name": "sortDirection",
+            "in": "query",
+            "required": false,
+            "description": "Direction to sort the results in (Validation: 'asc' or 'desc').",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "default": "asc"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success: Retrived list of users.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GetAllUsersResponseDTO"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid parameters for filters or paging."
+          },
+          "401": {
+            "description": "Unauthorized access."
+          }
+        }
+      }
+    },
+    "/Users/adduser": {
+      "post": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Creates a new user account",
+        "description": "Registers a new user. Validates input strings and the existence of the selected role.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddUserRequestDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User registered successfully."
+          },
+          "400": {
+            "description": "Invalid or empty input data, user role not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": "Username is required / First name and Last name required / Password is required / Role not found."
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized access."
+          }
+        }
+      }
+    },
+    "/Users/getuser/{userId}": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Returns data for a given user account",
+        "description": "Retrieves the data for a given user.",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "description": "The id of the user.",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success: User data retrieved.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetUserDTO"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "User not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": "User not found"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized access."
+          }
+        }
+      }
+    },
+    "/Users/getcurators": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Returns users with a Curator role with filtering and sorting",
+        "description": "Retrieves users with a curator role, with name filtering. Used in dropdowns / read only UI elements.",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "fullName",
+            "in": "query",
+            "required": false,
+            "description": "Filters the curator results by name.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "required": false,
+            "description": "The field to sort the curator list by.",
+            "schema": {
+              "type": "string",
+              "default": "name"
+            }
+          },
+          {
+            "name": "sortDirection",
+            "in": "query",
+            "required": false,
+            "description": "Direction to sort the results in (Validation: 'asc' or 'desc').",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "default": "asc"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success: List of curators returned.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GetCuratorsDTO"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized access."
+          }
+        }
+      }
+    },
+    "/Users/getresearchers": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Returns users with a Researcher role, with filtering and sorting",
+        "description": "Retrieves a list of users with a Researcher role. Used in dropdowns and read only UI elements. Supports name filtering.",
+        "parameters": [
+          {
+            "name": "fullName",
+            "in": "query",
+            "required": false,
+            "description": "Filters the researchers by name.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "required": false,
+            "description": "The field to sort the researcher list by.",
+            "schema": {
+              "type": "string",
+              "default": "name"
+            }
+          },
+          {
+            "name": "sortDirection",
+            "in": "query",
+            "required": false,
+            "description": "Direction to sort the results in (Validation: 'asc' or 'desc').",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "default": "asc"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success: Returned list of researchers.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GetCuratorsDTO"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized access."
+          }
+        }
+      }
+    },
+    "/Users/edituser": {
+      "post": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Updates an existing user",
+        "description": "Edits user information. Validates user data, user existance, user cridentials if neeeded.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateUserRequestDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User updated successfully."
+          },
+          "400": {
+            "description": "Text inputs invalid or empty, Role or User not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": "All fields are required / Role not found / User not found"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized access."
+          }
+        }
+      }
+    },
+    "/Users/deleteuser/{userId}": {
+      "delete": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Deletes an user profile (Soft Delete)",
+        "description": "Marks an user as deleted.",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "description": "The ID index of the user.",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User deleted successfully."
+          },
+          "404": {
+            "description": "User not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": "User not found"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized access."
+          }
+        }
+      }
+    }
+},
+  "components": {
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "Въведете вашия JWT токен в полето, за да се оторизирате."
+      }
+    },
+    "schemas": {
+            "GetAttributesDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+		  "dt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "attrName": {
+            "type": "string"
+          }
+        }
+      },
+      "AttributeEntity": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "dt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "attrName": {
+            "type": "string"
+          }
+        }
+      },
+      "GetAttributeValuesDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+		  "dt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "valueName": {
+            "type": "string"
+          }
+        }
+      },
+      "AddAttributeRequestDTO": {
+        "type": "object",
+        "required": [
+          "attrName"
+        ],
+        "properties": {
+          "attrName": {
+            "type": "string",
+            "description": "Validation: Required field."
+          }
+        }
+      },
+	       "AddAttributeValueDTO": {
+        "type": "object",
+        "required": [
+          "attrID",
+          "valueName"
+        ],
+        "properties": {
+          "attrID": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Validation: ID of an attribute."
+          },
+          "valueName": {
+            "type": "string",
+            "description": "Validation: Required field."
+          }
+        }
+      },
+      "UpdateAttributeRequestDTO": {
+        "type": "object",
+        "required": [
+          "id",
+          "attrName"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "attrName": {
+            "type": "string"
+          }
+        }
+      },
+      "UpdateAttributeValueDTO": {
+        "type": "object",
+        "required": [
+          "id",
+          "valueName"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "valueName": {
+            "type": "string"
+          }
+        }
+      },
+	   	  "GetCollectionsDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The ID of the collection."
+          },
+          "collName": {
+            "type": "string",
+            "description": "The name of the collection."
+          }
+        }
+      },
+      "AddCollectionRequestDTO": {
+        "type": "object",
+        "required": [
+          "collName"
+        ],
+        "properties": {
+          "collName": {
+            "type": "string",
+            "description": "Validation: Field is required."
+          }
+        }
+      },
+      "UpdateCollectionDTO": {
+        "type": "object",
+        "required": [
+          "id",
+          "collName"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The ID of the collection."
+          },
+          "collName": {
+            "type": "string",
+            "description": "The new name for the collection. Validation: cannot be null or whitespace."
+          }
+        }
+      },
+	  "GetAllExhibitsResponseDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "title": {
+            "type": "string"
+          },
+          "start_Date": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "end_Date": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "description": {
+            "type": "string"
+          },
+          "entry_Price": {
+            "type": "number",
+            "format": "double"
+          },
+          "curator": {
+            "type": "string",
+            "description": "Curator First Name and Last Name."
+          }
+        }
+      },
+      "GetExhibitDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "dt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "title": {
+            "type": "string"
+          },
+          "start_Date": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "end_Date": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "description": {
+            "type": "string"
+          },
+          "entry_Price": {
+            "type": "number",
+            "format": "double"
+          },
+          "curatorID": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "AddExhibitRequestDTO": {
+        "type": "object",
+        "required": [
+          "title",
+          "description",
+          "start_Date",
+          "end_Date",
+          "entry_Price",
+          "curatorID"
+        ],
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "Validation: Cannot be null or whitespace."
+          },
+          "description": {
+            "type": "string",
+            "description": "Validation: Cannot be null or whitespace."
+          },
+          "start_Date": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Validation: Must be different from default DateTime value."
+          },
+          "end_Date": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Validation: Must be different from default DateTime value."
+          },
+          "entry_Price": {
+            "type": "number",
+            "format": "double",
+            "minimum": 0,
+            "description": "Validation: Value must be greater than or equal to 0."
+          },
+          "curatorID": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Must match a valid User record ID with a Curator role."
+          }
+        }
+      },
+      "UpdateExhibitRequestDTO": {
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "description",
+          "start_Date",
+          "end_Date",
+          "entry_Price",
+          "curatorID"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The id of the exhibit being modified."
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "start_Date": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "end_Date": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "entry_Price": {
+            "type": "number",
+            "format": "double",
+            "minimum": 0
+          },
+          "curatorID": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+	  "GetItemsByExhDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The ExhibitItem ID."
+          },
+          "itemID": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The Item ID."
+          },
+          "itemName": {
+            "type": "string",
+            "description": "The name of the item."
+          }
+        }
+      },
+      "GetItemsNotExhDTO": {
+        "type": "object",
+        "properties": {
+          "itemID": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The Item ID of the free item."
+          },
+          "item_Name": {
+            "type": "string",
+            "description": "The name of the free item."
+          }
+        }
+      },
+      "AddExhibitItemDTO": {
+        "type": "object",
+        "required": [
+          "exhibitID",
+          "itemID"
+        ],
+        "properties": {
+          "exhibitID": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The exhibit ID."
+          },
+          "itemID": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The item ID to be added."
+          }
+        }
+      },
+	  "GetRoomsByExhDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The ID of the ExhibitRoom record."
+          },
+          "roomID": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The ID of the Room."
+          },
+          "room_Name": {
+            "type": "string",
+            "description": "The name of the room."
+          }
+        }
+      },
+      "GetRoomsNotExhDTO": {
+        "type": "object",
+        "properties": {
+          "roomID": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The ID of the available Room."
+          },
+          "room_Name": {
+            "type": "string",
+            "description": "The name of the available Room."
+          }
+        }
+      },
+      "AddExhibitRoomDTO": {
+        "type": "object",
+        "required": [
+          "exhibitID",
+          "roomID"
+        ],
+        "properties": {
+          "exhibitID": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The ID of the exhibit."
+          },
+          "roomID": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The ID of the room to assign."
+          }
+        }
+      },
+	  "GetFundsDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "dt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "partnerName": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "number",
+            "format": "double"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "studyName": {
+            "type": "string"
+          }
+        }
+      },
+      "GetFundDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "dt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "partnerID": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "amount": {
+            "type": "number",
+            "format": "double"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "studyID": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "isDelete": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "AddFundDTO": {
+        "type": "object",
+        "required": [
+          "partnerID",
+          "amount",
+          "currency",
+          "reason",
+          "studyID"
+        ],
+        "properties": {
+          "partnerID": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "amount": {
+            "type": "number",
+            "format": "double"
+          },
+          "currency": {
+            "type": "string",
+            "description": "Validation: Cannot be empty or whitespace."
+          },
+          "reason": {
+            "type": "string",
+            "description": "Validation: Cannot be empty or whitespace."
+          },
+          "studyID": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "UpdateFundDTO": {
+        "type": "object",
+        "required": [
+          "id",
+          "partnerID",
+          "amount",
+          "currency",
+          "reason",
+          "studyID"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "partnerID": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "amount": {
+            "type": "number",
+            "format": "double"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "studyID": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+	    "GetIAValuesDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The ItemAttrValues ID."
+          },
+          "attrName": {
+            "type": "string",
+            "description": "The name of the attribute."
+          },
+          "valueName": {
+            "type": "string",
+            "description": "The name of the value assigned to the attribute."
+          }
+        }
+      },
+      "AddItemAttrValueDTO": {
+        "type": "object",
+        "required": [
+          "itemID",
+          "attrValueID"
+        ],
+        "properties": {
+          "itemID": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The ID of the museum item."
+          },
+          "attrValueID": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The ID of the attribute value."
+          }
+        }
+      },
+	   "GetItemsDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "item_Name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "collectionName": {
+            "type": "string",
+            "description": "The name of the collection the item belongs to."
+          },
+          "internationalID": {
+            "type": "string"
+          }
+        }
+      },
+      "GetItemDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "dt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "item_Name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "collectionID": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "internationalID": {
+            "type": "string"
+          },
+          "isDelete": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "AddItemRequestDTO": {
+        "type": "object",
+        "required": [
+          "item_Name",
+          "collectionID"
+        ],
+        "properties": {
+          "item_Name": {
+            "type": "string",
+            "description": "Validation: Cannot be null or whitespace."
+          },
+          "description": {
+            "type": "string"
+          },
+          "collectionID": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The ID of the collection the item belongs to."
+          },
+          "internationalID": {
+            "type": "string"
+          }
+        }
+      },
+      "UpdateItemRequestDTO": {
+        "type": "object",
+        "required": [
+          "id",
+          "item_Name",
+          "collectionID"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "item_Name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "collectionID": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "internationalID": {
+            "type": "string"
+          }
+        }
+      },
+	  "GetLoansDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "partnerName": {
+            "type": "string"
+          },
+          "loanType": {
+            "type": "string",
+            "description": "The type of the loan, in readable language: 'outgoing' or 'incoming'."
+          },
+          "startDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "status": {
+            "type": "string",
+            "description": "Status of the loan: 'future', 'finished', or 'ongoing'."
+          }
+        }
+      },
+      "GetLoanDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "dt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "partnerID": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "loanType": {
+            "type": "string",
+            "maxLength": 1,
+            "description": "Single char flags used in the database for the type: ('O' / 'I')."
+          },
+          "startDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "isDelete": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "AddLoanDTO": {
+        "type": "object",
+        "required": [
+          "partnerID",
+          "loanType",
+          "startDate",
+          "endDate"
+        ],
+        "properties": {
+          "partnerID": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "loanType": {
+            "type": "string",
+            "maxLength": 1,
+            "description": "Validation: Character value must be 'O' or 'I'."
+          },
+          "startDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "UpdateLoanDTO": {
+        "type": "object",
+        "required": [
+          "id",
+          "partnerID",
+          "loanType",
+          "startDate",
+          "endDate"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "partnerID": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "loanType": {
+            "type": "string",
+            "maxLength": 1,
+            "description": "Validation: Character value must be 'O' or 'I'."
+          },
+          "startDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+	    "GetLoanItemsDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The LoanItems ID."
+          },
+          "itemName": {
+            "type": "string",
+            "description": "The name of the item."
+          }
+        }
+      },
+      "AddLoanItemDTO": {
+        "type": "object",
+        "required": [
+          "loanID",
+          "itemID"
+        ],
+        "properties": {
+          "loanID": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The ID of the loan."
+          },
+          "itemID": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The ID of the item being loaned."
+          }
+        }
+      },
+	   "GetPartnerTypesDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "typeName": {
+            "type": "string"
+          }
+        }
+      },
+      "GetPartnersDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "partnerName": {
+            "type": "string"
+          },
+          "vat": {
+            "type": "string"
+          },
+          "typeName": {
+            "type": "string",
+            "description": "The name of the partner type."
+          }
+        }
+      },
+      "GetPartnerDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "dt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "partnerName": {
+            "type": "string"
+          },
+          "vat": {
+            "type": "string"
+          },
+          "typeID": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "isDelete": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "AddPartnerDTO": {
+        "type": "object",
+        "required": [
+          "partnerName",
+          "vat",
+          "typeID"
+        ],
+        "properties": {
+          "partnerName": {
+            "type": "string",
+            "description": "Validation: Cannot be null or empty."
+          },
+          "vat": {
+            "type": "string",
+            "description": "Validation: Cannot be null or empty."
+          },
+          "typeID": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "AddPartnerTypeDTO": {
+        "type": "object",
+        "required": [
+          "typeName"
+        ],
+        "properties": {
+          "typeName": {
+            "type": "string",
+            "description": "Validation: Cannot be null or empty."
+          }
+        }
+      },
+      "UpdatePartnerDTO": {
+        "type": "object",
+        "required": [
+          "id",
+          "partnerName",
+          "vat",
+          "typeID"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "partnerName": {
+            "type": "string"
+          },
+          "vat": {
+            "type": "string"
+          },
+          "typeID": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "UpdatePartnerTypeDTO": {
+        "type": "object",
+        "required": [
+          "id",
+          "typeName"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "typeName": {
+            "type": "string"
+          }
+        }
+      },
+	   "GetAllRoomsDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "room_Name": {
+            "type": "string"
+          }
+        }
+      },
+      "GetRoomDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "dt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "room_Name": {
+            "type": "string"
+          },
+          "temperature": {
+            "type": "number",
+            "format": "double",
+            "description": "Room temperature value."
+          },
+          "humidity": {
+            "type": "number",
+            "format": "double",
+            "description": "Room humidity percentage."
+          },
+          "light_Exp": {
+            "type": "number",
+            "format": "double",
+            "description": "The level of light expose in the room."
+          },
+          "isDelete": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "AddRoomRequestDTO": {
+        "type": "object",
+        "required": [
+          "room_Name"
+        ],
+        "properties": {
+          "room_Name": {
+            "type": "string",
+            "description": "Validation: Cannot be null, empty, or whitespace."
+          },
+          "temperature": {
+            "type": "number",
+            "format": "double"
+          },
+          "humidity": {
+            "type": "number",
+            "format": "double"
+          },
+          "light_Exp": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "UpdateRoomRequestDTO": {
+        "type": "object",
+        "required": [
+          "id",
+          "room_Name"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "room_Name": {
+            "type": "string"
+          },
+          "temperature": {
+            "type": "number",
+            "format": "double"
+          },
+          "humidity": {
+            "type": "number",
+            "format": "double"
+          },
+          "light_Exp": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+	   "GetStudentsDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "fullName": {
+            "type": "string",
+            "description": "FName and LName."
+          },
+          "partnerName": {
+            "type": "string",
+            "description": "Name of the partner organisation the student is from."
+          }
+        }
+      },
+      "GetStudentDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "dt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "fName": {
+            "type": "string"
+          },
+          "lName": {
+            "type": "string"
+          },
+          "partnerID": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "isDeleted": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "AddStudentDTO": {
+        "type": "object",
+        "required": [
+          "fName",
+          "lName",
+          "partnerID"
+        ],
+        "properties": {
+          "fName": {
+            "type": "string",
+            "description": "Validation: Cannot be null, empty, or whitespace."
+          },
+          "lName": {
+            "type": "string",
+            "description": "Validation: Cannot be null, empty, or whitespace."
+          },
+          "partnerID": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The ID of the partner organization."
+          }
+        }
+      },
+      "UpdateStudentDTO": {
+        "type": "object",
+        "required": [
+          "id",
+          "fName",
+          "lName",
+          "partnerID"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "fName": {
+            "type": "string"
+          },
+          "lName": {
+            "type": "string"
+          },
+          "partnerID": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+	   "GetStudiesDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "studyName": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "startDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "status": {
+            "type": "string",
+            "description": "Text label: 'future', 'finished', or 'ongoing'. Calculated dynamically based on the startDate and endDate."
+          }
+        }
+      },
+      "GetStudyDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "dt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "studyName": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "startDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "isDelete": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "AddStudyDTO": {
+        "type": "object",
+        "required": [
+          "studyName",
+          "startDate",
+          "endDate"
+        ],
+        "properties": {
+          "studyName": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "startDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "UpdateStudyDTO": {
+        "type": "object",
+        "required": [
+          "id",
+          "studyName",
+          "startDate",
+          "endDate"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "studyName": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "startDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+	   "GetStudyResearchersDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The StudyResearchers ID."
+          },
+          "researcherName": {
+            "type": "string",
+            "description": "First Name and Last Name combined."
+          }
+        }
+      },
+      "AddStudyResearcherDTO": {
+        "type": "object",
+        "required": [
+          "studyID",
+          "researcherID"
+        ],
+        "properties": {
+          "studyID": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The ID of the research study."
+          },
+          "researcherID": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The ID of the researcher being assigned."
+          }
+        }
+      },
+	    "GetStudyStudentsDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The StudyStudents ID."
+          },
+          "studentID": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The ID of the student."
+          },
+          "fullName": {
+            "type": "string",
+            "description": "FName and LName."
+          },
+          "partnerName": {
+            "type": "string",
+            "description": "Name of the partner organisation the student is from."
+          }
+        }
+      },
+      "AddStudyStudentDTO": {
+        "type": "object",
+        "required": [
+          "studyID",
+          "studentID"
+        ],
+        "properties": {
+          "studyID": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The ID of the research study."
+          },
+          "studentID": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The ID if the student to assign."
+          }
+        }
+      },
+	  "GetAllRolesResponseDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "AddRoleRequestDTO": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "UpdateRoleRequestDTO": {
+        "type": "object",
+        "required": [
+          "id",
+          "name"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "GetAllUsersResponseDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "username": {
+            "type": "string"
+          },
+          "fName": {
+            "type": "string"
+          },
+          "lName": {
+            "type": "string"
+          },
+          "userRole": {
+            "type": "string",
+            "description": "The name of the user role."
+          }
+        }
+      },
+      "AddUserRequestDTO": {
+        "type": "object",
+        "required": [
+          "username",
+          "password",
+          "fName",
+          "lName",
+          "userRoleID"
+        ],
+        "properties": {
+          "username": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          },
+          "fName": {
+            "type": "string"
+          },
+          "lName": {
+            "type": "string"
+          },
+          "userRoleID": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "GetUserDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "dt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "username": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          },
+          "fName": {
+            "type": "string"
+          },
+          "lName": {
+            "type": "string"
+          },
+          "userRoleID": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "isDelete": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "GetCuratorsDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name": {
+            "type": "string",
+            "description": "First Name and Last Name combined."
+          }
+        }
+      },
+      "UpdateUserRequestDTO": {
+        "type": "object",
+        "required": [
+          "id",
+          "username",
+          "password",
+          "fName",
+          "lName",
+          "userRoleID"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "username": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          },
+          "fName": {
+            "type": "string"
+          },
+          "lName": {
+            "type": "string"
+          },
+          "userRoleID": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      }
+    }
+  }
+}
