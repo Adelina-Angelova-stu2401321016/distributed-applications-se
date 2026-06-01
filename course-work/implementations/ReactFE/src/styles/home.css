@@ -1,0 +1,93 @@
+/* ===== Page Wrapper ===== */
+
+.home-page {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+/* ===== Page Title ===== */
+
+.home-title {
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: #2b2b2b;
+}
+
+/* ===== Role Section Cards ===== */
+
+.role-section {
+  background: white;
+  border-radius: 12px;
+  padding: 26px;
+  border: 1px solid #e3e0da;
+
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.05);
+
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Section headings */
+
+.role-section h3 {
+  margin: 0;
+  font-weight: 600;
+  font-size: 1.2rem;
+  color: #4a453d;
+  letter-spacing: 0.03em;
+}
+
+/* ===== Button Grid ===== */
+
+.role-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+/* ===== Dashboard Cards (Buttons Styled Like Cards) ===== */
+
+.dashboard-card {
+  padding: 20px;
+  border-radius: 10px;
+  border: 1px solid #e3e0da;
+
+  background: #faf9f7;
+  cursor: pointer;
+
+  text-align: left;
+
+  transition: all 0.2s ease;
+}
+
+.dashboard-card:hover {
+  border-color: #8c6f4e;
+  background: white;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 26px rgba(0, 0, 0, 0.07);
+}
+
+/* Card title */
+
+.dashboard-card-title {
+  font-weight: 600;
+  font-size: 1rem;
+  color: #2b2b2b;
+}
+
+/* Card subtitle */
+
+.dashboard-card-sub {
+  font-size: 0.85rem;
+  margin-top: 4px;
+  color: #6f6b63;
+}
+
+/* ===== Loading ===== */
+
+.home-loading {
+  color: #6f6b63;
+  font-size: 1rem;
+}
